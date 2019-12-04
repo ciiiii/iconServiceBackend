@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/ciiiii/iconServiceBackend/cos"
 	"github.com/ciiiii/iconServiceBackend/config"
@@ -10,6 +11,12 @@ import (
 func main() {
 	cosService := cos.Init()
 	r := gin.New()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:           []string{"http://localhost:8000"},
+		AllowMethods:           []string{"GET", "OPTIONS"},
+		AllowHeaders:           []string{"Origin"},
+		AllowBrowserExtensions: true,
+	}))
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	icons := r.Group("icons")
@@ -32,7 +39,7 @@ func main() {
 	gin.SetMode(config.Parser().Config.Mode)
 	gin.DisableConsoleColor()
 	server := &http.Server{
-		Addr:    ":"+config.Parser().Config.Port,
+		Addr:    ":" + config.Parser().Config.Port,
 		Handler: r,
 	}
 	panic(server.ListenAndServe())
