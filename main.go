@@ -6,6 +6,7 @@ import (
 	"github.com/ciiiii/iconServiceBackend/cos"
 	"github.com/ciiiii/iconServiceBackend/config"
 	"net/http"
+	"strings"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 		AllowMethods:     []string{"GET", "OPTIONS"},
 		AllowOrigins:     []string{"http://localhost:8000"},
 		AllowOriginFunc: func(origin string) bool {
-			return true
+			return strings.Contains(origin, "chrome-extension://")
 		},
 	}))
 	r.Use(gin.Logger())
