@@ -11,7 +11,13 @@ import (
 func main() {
 	cosService := cos.Init()
 	r := gin.New()
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowMethods:     []string{"GET", "OPTIONS"},
+		AllowOrigins:     []string{"http://localhost:8000"},
+		AllowOriginFunc: func(origin string) bool {
+			return true
+		},
+	}))
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	icons := r.Group("icons")
