@@ -16,12 +16,9 @@ type Client struct {
 	prefix string
 }
 
-type Object struct {
+type Icon struct {
 	Name string
 	Key  string
-	Url  string
-	Date string
-	Size int
 }
 
 func Init() *Client {
@@ -37,27 +34,50 @@ func Init() *Client {
 	return &c
 }
 
-func (c Client) List(prefix string) ([]Object, error) {
-	opt := &cos.BucketGetOptions{
-		Prefix: prefix,
+func (c Client) List(prefix, marker string, search bool) ([]Icon, error) {
+	// prefix
+	// ""
+	// svgs/brands/
+	// svgs/regular/
+	// svgs/solid/
+	// svgs/brands/apple
+	var opt *cos.BucketGetOptions
+	if !search {
+		if marker == "" {
+			opt = &cos.BucketGetOptions{
+				Prefix:  prefix,
+				MaxKeys: 24,
+			}
+		} else {
+			opt = &cos.BucketGetOptions{
+				Prefix:  prefix,
+				MaxKeys: 24,
+				Marker:  "svgs/" + marker + ".svg",
+			}
+		}
+	} else {
+		opt = &cos.BucketGetOptions{
+			Prefix: prefix,
+		}
 	}
-	v, _, err := c.client.Bucket.Get(context.Background(), opt)
+
+	r, _, err := c.client.Bucket.Get(context.Background(), opt)
 	if err != nil {
 		return nil, err
 	}
-	var objectList []Object
-	for _, o := range v.Contents {
+	var iconList []Icon
+	for _, o := range r.Contents {
 		if o.Size != 0 {
-			objectList = append(objectList, Object{
-				Name: utils.ParseKey(o.Key),
-				Key:  o.Key,
-				Url:  strings.Join([]string{c.prefix, o.Key}, "/"),
-				Date: o.LastModified,
-				Size: o.Size,
+			iconList = append(iconList, Icon{
+				Name: utils.ParseName(o.Key),
+				Key:  utils.ParsePrefix(o.Key),
 			})
 		}
 	}
-	return objectList, nil
+	if len(iconList) == 0 {
+		return []Icon{}, nil
+	}
+	return iconList, nil
 }
 
 func (c Client) Upload(path string) error {

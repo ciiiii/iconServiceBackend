@@ -40,13 +40,16 @@ func GetAllFiles(dirPth string) (files []string, err error) {
 	return files, nil
 }
 
-
-
-func ParseKey(key string) string {
+func ParseName(key string) string {
 	splitStr := strings.Split(key, "/")
 	if len(splitStr) == 1 {
-		return key
+		return strings.ReplaceAll(key, ".svg", "")
 	} else {
-		return splitStr[len(splitStr)-1]
+		return strings.ReplaceAll(splitStr[len(splitStr)-1], ".svg", "")
 	}
+}
+
+func ParsePrefix(key string) string {
+	splitStr := strings.Split(key, "/")
+	return splitStr[1]
 }

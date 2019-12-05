@@ -13,8 +13,8 @@ func main() {
 	cosService := cos.Init()
 	r := gin.New()
 	r.Use(cors.New(cors.Config{
-		AllowMethods:     []string{"GET", "OPTIONS"},
-		AllowOrigins:     []string{"http://localhost:8000"},
+		AllowMethods: []string{"GET", "OPTIONS"},
+		AllowOrigins: []string{"http://localhost:8000"},
 		AllowOriginFunc: func(origin string) bool {
 			return strings.Contains(origin, "chrome-extension://")
 		},
@@ -24,11 +24,20 @@ func main() {
 	icons := r.Group("icons")
 	{
 		icons.GET("/", func(c *gin.Context) {
-			iconList, err := cosService.List("")
+			query := c.Query("query")
+			tag := c.Query("tag")
+			marker := c.Query("marker")
+			var prefix string
+			search := false
+			prefix = strings.Join([]string{"svgs", tag, query}, "/")
+			if query != "" {
+				search = true
+			}
+			iconList, err := cosService.List(prefix, marker, search)
 			if err != nil {
 				c.JSON(400, gin.H{
 					"success": false,
-					"message": "cos service errror",
+					"message": "cos service error",
 				})
 			}
 			c.JSON(200, gin.H{
