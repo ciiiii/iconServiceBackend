@@ -5,12 +5,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ciiiii/iconServiceBackend/cos"
 	"github.com/ciiiii/iconServiceBackend/config"
+	"github.com/golang/groupcache/lru"
 	"net/http"
 	"strings"
 )
 
 func main() {
 	cosService := cos.Init()
+	cache := lru.New(100)
 	r := gin.New()
 	r.Use(cors.New(cors.Config{
 		AllowMethods: []string{"GET", "OPTIONS"},
@@ -33,13 +35,24 @@ func main() {
 			if query != "" {
 				search = true
 			}
+			key := prefix + marker
+			value, ok := cache.Get(key)
+			if ok {
+				c.JSON(200, gin.H{
+					"success": true,
+					"data":    value,
+				})
+				return
+			}
 			iconList, err := cosService.List(prefix, marker, search)
 			if err != nil {
 				c.JSON(400, gin.H{
 					"success": false,
 					"message": "cos service error",
 				})
+				return
 			}
+			cache.Add(key, iconList)
 			c.JSON(200, gin.H{
 				"success": true,
 				"data":    iconList,

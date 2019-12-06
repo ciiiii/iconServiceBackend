@@ -7,5 +7,6 @@ require (
 	github.com/caarlos0/env/v6 v6.1.0
 	github.com/gin-contrib/cors v1.3.0
 	github.com/gin-gonic/gin v1.5.0
+	github.com/golang/groupcache v0.0.0-20191027212112-611e8accdfc9
 	github.com/tencentyun/cos-go-sdk-v5 v0.0.0-20191108095731-8ca4b370cde4
 )
