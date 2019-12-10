@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/ciiiii/iconServiceBackend/cos"
-	"github.com/ciiiii/iconServiceBackend/config"
-	"github.com/golang/groupcache/lru"
 	"net/http"
 	"strings"
+
+	"github.com/ciiiii/iconServiceBackend/config"
+	"github.com/ciiiii/iconServiceBackend/cos"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/golang/groupcache/lru"
 )
 
 func main() {
@@ -52,7 +53,9 @@ func main() {
 				})
 				return
 			}
-			cache.Add(key, iconList)
+			if len(iconList) != 0 {
+				cache.Add(key, iconList)
+			}
 			c.JSON(200, gin.H{
 				"success": true,
 				"data":    iconList,
